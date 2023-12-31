@@ -1,6 +1,5 @@
-import NeoVis, { NEOVIS_ADVANCED_CONFIG } from 'neovis.js';
+import NeoVis, { NEOVIS_ADVANCED_CONFIG } from "neovis.js";
 import { useEffect } from "react";
-
 
 function App() {
 
@@ -13,7 +12,7 @@ function App() {
         neo4j: {
           serverUrl: "bolt://localhost:7687",
           serverUser: "neo4j",
-          serverPassword: "neo4j",
+          serverPassword: "12345678",
         },
         labels: {
           Character: {
@@ -34,10 +33,10 @@ function App() {
             value: "weight"
           }
         },
-         initialCypher: "MATCH (n) RETURN n limit 20"   // here I'm trying to use default Movie DBMS 
+         initialCypher: "MATCH p=()-[:owns]->()-[:LicensedTo]->() RETURN p"   // here I'm trying to use default Movie DBMS 
       };
 
-      neoViz = new NeoVis.default(config);
+      neoViz = new NeoVis(config);
       neoViz.render();
       console.log("neoViz >> ", neoViz);
     }
