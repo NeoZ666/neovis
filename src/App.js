@@ -10,9 +10,13 @@ function App() {
       const config = {
         containerId: "viz",
         neo4j: {
-          serverUrl: "bolt://localhost:7687",
+          serverUrl: "neo4j://16cea75e.databases.neo4j.io",
           serverUser: "neo4j",
-          serverPassword: "12345678",
+          serverPassword: "_swaqDxanVf1hK9fLCRaAbWarE74c_03lH8PlKgnKq0",
+          driverConfig: {
+          encrypted: "ENCRYPTION_ON",
+          trust: "TRUST_SYSTEM_CA_SIGNED_CERTIFICATES",
+          },
         },
         labels: {
           Character: {
@@ -21,9 +25,15 @@ function App() {
             group: "community",
             [NEOVIS_ADVANCED_CONFIG]: {
               static: {
-                font: '18px',
-                shape: 'box',
-                color: '#00ff00'
+                "color": "lightgreen",
+                "shape": "dot",
+                "value": 10,
+                "font": {
+                  "color": "black",
+                  "background": "none",
+                  "strokeWidth": "0",
+                  "size": "15"
+                }
               }
             }
           }
@@ -33,10 +43,16 @@ function App() {
             value: "weight"
           }
         },
-         initialCypher: "MATCH p=()-[:owns]->()-[:LicensedTo]->() RETURN p"   // here I'm trying to use default Movie DBMS 
+        initialCypher: "MATCH p=()-[:owns]->()-[:LicensedTo]->() RETURN p",
+        onNodeClick: (node) => {
+          // Log all properties of the clicked node
+          console.log("Clicked Node Properties:", node.properties);
+        }
       };
 
       neoViz = new NeoVis(config);
+      // Example: Increase font size dynamically
+      // neoViz._config.labels.Character[NEOVIS_ADVANCED_CONFIG].static.font = '24px';
       neoViz.render();
       console.log("neoViz >> ", neoViz);
     }
@@ -53,6 +69,7 @@ function App() {
 }
 
 export default App;
+
 
 // const App = () => {
 //   useEffect(() => {
