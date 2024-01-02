@@ -189,7 +189,7 @@ function App() {
   }, []);
 
   return (
-    <div className="App" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+    <div className="App" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', border: '1px solid lightgray', font: '22pt arial', }}>
       <div id="viz" style={{ width: '900px', height: '1700px' }}>
         Neo4j Ownership Visualization
       </div>
