@@ -1,8 +1,7 @@
-import NeoVis, { NEOVIS_ADVANCED_CONFIG } from "neovis.js";
+import NeoVis from "neovis.js";
 import { useEffect } from "react";
 
 function App() {
-
   useEffect(() => {
     let neoViz;
 
@@ -11,29 +10,174 @@ function App() {
         containerId: "viz",
         neo4j: {
           serverUrl: "bolt://localhost:7687",
-          serverUser: "neo4j",
+          serverUser: "neo4j",      
           serverPassword: "12345678",
+          // serverUrl: "bolt://16cea75e.databases.neo4j.io",
+          // serverPassword: "_swaqDxanVf1hK9fLCRaAbWarE74c_03lH8PlKgnKq0",
+          // driverConfig: {
+          //   encrypted: "ENCRYPTION_ON",
+          //   trust: "TRUST_SYSTEM_CA_SIGNED_CERTIFICATES",
+          // },
         },
-        labels: {
-          Character: {
-            label: "name",
-            value: "pagerank",
-            group: "community",
-            [NEOVIS_ADVANCED_CONFIG]: {
-              static: {
-                font: '18px',
-                shape: 'box',
-                color: '#00ff00'
-              }
+        visConfig: {
+					nodes: {
+						shape: 'circle',
+            font: {
+              face: 'arial',
+              size: 12, 
+              strokeWidth: 0,
+            },
+            widthConstraint: 100,
+            shadow: true,
+					},
+          edges: {
+            hoverWidth: 0.1,
+            selectionWidth: 0,
+            smooth: {
+                type: 'continuous',
+                roundness: 0.15
+            },
+            font: {
+                size: 9,
+                strokeWidth: 0,
+                align: 'top'
+            },
+            color: {
+                inherit: true
+            },
+            arrows: {
+                to: {
+                    enabled: true,
+                    type: 'arrow',
+                    scaleFactor: 0.5
+                }
             }
           }
-        },
+				},
+				labels: {
+					Artist: {
+						label: 'name',
+						[NeoVis.NEOVIS_ADVANCED_CONFIG]: {
+              static: {
+                size: 250,
+              },
+							cypher: {
+								value: "MATCH (n) RETURN n"
+							},
+							function: {
+								title: function (node) {
+                  var nameArray = node.properties['name'].split(' ')
+                  var Name = '';
+                  var spaceCounter = 0;
+                  for (const name of nameArray) {
+                      Name += name + ' ';
+                      spaceCounter += name.length;
+                      if (spaceCounter > 10) {
+                          Name += '\n'
+                          spaceCounter = 0;
+                      }
+                  }
+
+                  node.properties['name'] = Name;
+                  console.log("node >> ", node);
+                  return node.properties['name'] + 'Wallet: ' + node.properties['wallet'] + '\n' + 'Song Hits: ' + node.properties['numberofSongs'] + '\n' + 'Views: ' + node.properties['views'];
+                }
+							},
+						},
+            Dataset: {
+              label: 'neo4j',
+            }
+					},
+          LicensingCompany: {
+						label: 'name',
+						[NeoVis.NEOVIS_ADVANCED_CONFIG]: {
+              static: {
+                size: 250,
+              },
+							cypher: {
+								value: "MATCH (n) RETURN n"
+							},
+							function: {
+								title: function (node) {
+                  var nameArray = node.properties['name'].split(' ')
+                  var Name = '';
+                  var spaceCounter = 0;
+                  for (const name of nameArray) {
+                      Name += name + ' ';
+                      spaceCounter += name.length;
+                      if (spaceCounter > 10) {
+                          Name += '\n'
+                          spaceCounter = 0;
+                      }
+                  }
+
+                  node.properties['name'] = Name;
+                  console.log("node >> ", node);
+                  return node.properties['name'] + 'Wallet: ' + node.properties['wallet'] + '\n' + 'Licensing Fee: ' + node.properties['licenseFee'] + '\n' + 'Deadline: ' + node.properties['deadline'];
+                }
+							},
+						},
+            Dataset: {
+              label: 'neo4j',
+            }
+					},
+          Song: {
+						label: 'name',
+						[NeoVis.NEOVIS_ADVANCED_CONFIG]: {
+              static: {
+                size: 250,
+              },
+							cypher: {
+								value: "MATCH (n) RETURN n"
+							},
+							function: {
+								title: function (node) {
+                  var nameArray = node.properties['name'].split(' ')
+                  var Name = '';
+                  var spaceCounter = 0;
+                  for (const name of nameArray) {
+                      Name += name + ' ';
+                      spaceCounter += name.length;
+                      if (spaceCounter > 10) {
+                          Name += '\n'
+                          spaceCounter = 0;
+                      }
+                  }
+
+                  node.properties['name'] = Name;
+                  console.log("node >> ", node);
+                  return node.properties['name'] + 'Desc: ' + node.properties['description'] + '\n' + 'Views: ' + node.properties['views'];
+                }
+							},
+						},
+            Dataset: {
+              label: 'neo4j',
+            }
+					},
+				},
         relationships: {
-          INTERACTS: {
-            value: "weight"
-          }
+          owns: {
+            label: "owns",
+            [NeoVis.NEOVIS_ADVANCED_CONFIG]: {
+              function: {
+                title: function (edge) {
+                  console.log(edge);
+                  return "owns";
+                }
+              },
+            }
+          },
+          LicensedTo: {
+            label: "LicensedTo",
+            [NeoVis.NEOVIS_ADVANCED_CONFIG]: {
+              function: {
+                title: NeoVis.objectToTitleHtml
+              },
+            }
+          },
         },
-         initialCypher: "MATCH p=()-[:owns]->()-[:LicensedTo]->() RETURN p"   // here I'm trying to use default Movie DBMS 
+        initialCypher:
+          "MATCH (a:Artist)-[o:owns]->(s:Song)-[l:LicensedTo]->(c:LicensingCompany) RETURN a,o,s,l,c",
       };
 
       neoViz = new NeoVis(config);
@@ -42,75 +186,16 @@ function App() {
     }
 
     draw();
-  }, [])
+  }, []);
 
   return (
-    <div className="App">
-      Hello
-      <div id="viz"></div>
+    <div className="App" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <div id="viz" style={{ width: '900px', height: '1700px' }}>
+        Neo4j Ownership Visualization
+      </div>
     </div>
   );
+  
 }
 
 export default App;
-
-// const App = () => {
-//   useEffect(() => {
-//     const initializeGraph = async () => {
-//       const config = {
-//         container_id: 'neo4j-container',
-//         neo4j: {
-//           server_url: '65e55caf.databases.neo4j.io:7687',
-//           server_user: 'neo4j',
-//           server_password: 'hVUozIMUzjjnf8IxrcTyt15ASaEodaErxR-PgzAcdrw',
-//           driverConfig: {
-//             encrypted: "ENCRYPTION_ON",
-//             trust: "TRUST_SYSTEM_CA_SIGNED_CERTIFICATES",
-//           },
-//         },
-//         labels: {
-//           'Song': {
-//             caption: 'name',
-//             size: 'pagerank',
-//             community: 'community',
-//           },
-//           'Artist': {
-//             caption: 'name',
-//             size: 'pagerank',
-//             community: 'community',
-//           },
-//           'LicensingCompany': {
-//             caption: 'name',
-//             size: 'pagerank',
-//             community: 'community',
-//           },
-//         },
-//         relationships: {
-//           'LicensedTo': {
-//             caption: false,
-//             thickness: 'weight',
-//           },
-//           'owns': {
-//             caption: false,
-//             thickness: 'weight',
-//           },
-//         },
-//         initial_cypher: 'MATCH p=()-[:owns]->()-[:LicensedTo]->() RETURN p',
-//       };
-
-//       const neoVis = new NeoVis(config);
-//       neoVis.render();
-//     };
-
-//     initializeGraph();
-//   }, []);
-
-//   return (
-//     <div>
-//       <h1>NeoVis.js React Example</h1>
-//       <div id="neo4j-container" style={{ height: '600px' }}></div>
-//     </div>
-//   );
-// };
-
-// export default App;
