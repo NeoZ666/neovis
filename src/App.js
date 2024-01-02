@@ -9,11 +9,11 @@ function App() {
       const config = {
         containerId: "viz",
         neo4j: {
-          // serverUrl: "bolt://16cea75e.databases.neo4j.io",
           serverUrl: "bolt://localhost:7687",
-          serverUser: "neo4j",
-          // serverPassword: "_swaqDxanVf1hK9fLCRaAbWarE74c_03lH8PlKgnKq0",
+          serverUser: "neo4j",      
           serverPassword: "12345678",
+          // serverUrl: "bolt://16cea75e.databases.neo4j.io",
+          // serverPassword: "_swaqDxanVf1hK9fLCRaAbWarE74c_03lH8PlKgnKq0",
           // driverConfig: {
           //   encrypted: "ENCRYPTION_ON",
           //   trust: "TRUST_SYSTEM_CA_SIGNED_CERTIFICATES",
@@ -21,7 +21,7 @@ function App() {
         },
         visConfig: {
 					nodes: {
-						shape: 'dot',
+						shape: 'circle',
             font: {
               face: 'arial',
               size: 12, 
@@ -80,58 +80,102 @@ function App() {
 
                   node.properties['name'] = Name;
                   console.log("node >> ", node);
-                  return node;
+                  return node.properties['name'] + 'Wallet: ' + node.properties['wallet'] + '\n' + 'Song Hits: ' + node.properties['numberofSongs'] + '\n' + 'Views: ' + node.properties['views'];
                 }
 							},
 						},
             Dataset: {
               label: 'neo4j',
             }
-					}
-            // LicensingCompany: {
-            //   label: "name",
-            //   [NeoVis.NEOVIS_ADVANCED_CONFIG]: {
-            //     static: {
-            //         value: 1.0
-            //       },
-            //       cypher: {
-            //         value: "MATCH (n:LicensingCompany) RETURN n"
-            //       }
-            //     },
-            //   },
-            //   Artist: {
-            //     label: "name",
-            //     [NeoVis.NEOVIS_ADVANCED_CONFIG]: {
-            //       static: {
-            //           value: 1.0
-            //         },
-            //         cypher: {
-            //           value: "MATCH (n:Artist) RETURN n"
-            //         }
-            //       },
-            //     },
-				},
-				relationships: {
-					owns: {
-            label: "owns",
-						// value: 'weight',
-						[NeoVis.NEOVIS_ADVANCED_CONFIG]: {
-
-							// function: {
-							// 	title: NeoVis.objectToTitleHtml
-							// },
-						}
 					},
+          LicensingCompany: {
+						label: 'name',
+						[NeoVis.NEOVIS_ADVANCED_CONFIG]: {
+              static: {
+                size: 250,
+              },
+							cypher: {
+								value: "MATCH (n) RETURN n"
+							},
+							function: {
+								title: function (node) {
+                  var nameArray = node.properties['name'].split(' ')
+                  var Name = '';
+                  var spaceCounter = 0;
+                  for (const name of nameArray) {
+                      Name += name + ' ';
+                      spaceCounter += name.length;
+                      if (spaceCounter > 10) {
+                          Name += '\n'
+                          spaceCounter = 0;
+                      }
+                  }
+
+                  node.properties['name'] = Name;
+                  console.log("node >> ", node);
+                  return node.properties['name'] + 'Wallet: ' + node.properties['wallet'] + '\n' + 'Licensing Fee: ' + node.properties['licenseFee'] + '\n' + 'Deadline: ' + node.properties['deadline'];
+                }
+							},
+						},
+            Dataset: {
+              label: 'neo4j',
+            }
+					},
+          Song: {
+						label: 'name',
+						[NeoVis.NEOVIS_ADVANCED_CONFIG]: {
+              static: {
+                size: 250,
+              },
+							cypher: {
+								value: "MATCH (n) RETURN n"
+							},
+							function: {
+								title: function (node) {
+                  var nameArray = node.properties['name'].split(' ')
+                  var Name = '';
+                  var spaceCounter = 0;
+                  for (const name of nameArray) {
+                      Name += name + ' ';
+                      spaceCounter += name.length;
+                      if (spaceCounter > 10) {
+                          Name += '\n'
+                          spaceCounter = 0;
+                      }
+                  }
+
+                  node.properties['name'] = Name;
+                  console.log("node >> ", node);
+                  return node.properties['name'] + 'Desc: ' + node.properties['description'] + '\n' + 'Views: ' + node.properties['views'];
+                }
+							},
+						},
+            Dataset: {
+              label: 'neo4j',
+            }
+					},
+				},
+        relationships: {
+          owns: {
+            label: "owns",
+            [NeoVis.NEOVIS_ADVANCED_CONFIG]: {
+              function: {
+                title: function (edge) {
+                  console.log(edge);
+                  return "owns";
+                }
+              },
+            }
+          },
           LicensedTo: {
             label: "LicensedTo",
-						value: 'weight',
-						[NeoVis.NEOVIS_ADVANCED_CONFIG]: {
-							function: {
-								title: NeoVis.objectToTitleHtml
-							},
-						}
-					},
-				},
+            [NeoVis.NEOVIS_ADVANCED_CONFIG]: {
+              function: {
+                title: NeoVis.objectToTitleHtml
+              },
+            }
+          },
+        },
         initialCypher:
           "MATCH (a:Artist)-[o:owns]->(s:Song)-[l:LicensedTo]->(c:LicensingCompany) RETURN a,o,s,l,c",
       };
@@ -145,11 +189,13 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
-      Hello
-      <div id="viz"></div>
+    <div className="App" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <div id="viz" style={{ width: '900px', height: '1700px' }}>
+        Neo4j Ownership Visualization
+      </div>
     </div>
   );
+  
 }
 
 export default App;
